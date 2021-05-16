@@ -1,0 +1,57 @@
+{% from '_formhelpers.html' import render_writting_field, render_radio_field %}
+
+<div class="choice-container">
+    <div class="switch-container">
+        <label class="form-switch">
+            <input class="hide" id="form-switch" type="checkbox">
+            <span class="slider-round"></span>
+        </label>
+        <span class="slider-text">Parameter file</span>
+    </div>
+    <div class="models-container show" id="parameter-file-models">
+        {{ render_radio_field(file_form.file_form_model, class="radio model", form="parameter-file-form") }}
+    </div>
+    <div class="models-container hide" id="parameter-fields-models">
+        {{ render_radio_field(fields_form.fields_form_model, class="radio model", form="parameter-fields-form") }}
+    </div>
+</div>
+<div class="form-container show" id="parameter-file">
+    <form class="form" id="parameter-file-form" method="post" action="{{ url_for('prepare') }}"
+          enctype="multipart/form-data">
+        {{ file_form.csrf_token(id="file_form_csrf_token") }}
+        <div class="file-upload-wrapper" initial-text="Select dataset ( .csv )" data-text="">
+            {{ file_form.file_form_dataset(class_="file-upload-field") }}
+        </div>
+        <div class="file-upload-wrapper" initial-text="Select parameter file ( .txt )" data-text="">
+            {{ file_form.file_form_param(class_="file-upload-field") }}
+        </div>
+        <div class="file-upload-wrapper" initial-text="Select correspondence files ( .txt )" data-text="">
+            {{ file_form.file_form_corresp(class_="file-upload-field") }}
+        </div>
+    </form>
+</div>
+<div class="form-container hide" id="parameter-fields">
+    <form class="form" id="parameter-fields-form" method="post" action="{{ url_for('prepare') }}"
+          enctype="multipart/form-data">
+        {{ fields_form.csrf_token(id="fields_form_csrf_token") }}
+        <div class="file-upload-wrapper" initial-text="Select dataset ( .csv )" data-text="">
+            {{ fields_form.fields_form_dataset(class_="file-upload-field") }}
+        </div>
+        <div class="fields-container">
+            {{ render_writting_field(fields_form.fields_form_samples) }}
+            {{ render_writting_field(fields_form.fields_form_epochs) }}
+            {{ render_writting_field(fields_form.fields_form_names) }}
+            {{ render_writting_field(fields_form.fields_form_categories, class="all-columns") }}
+            {{ render_writting_field(fields_form.fields_form_correlees) }}
+            {{ render_writting_field(fields_form.fields_form_drop) }}
+            {{ fields_form.fields_form_unnamed.label }}
+            <div class="field-radio">
+                {{ render_radio_field(fields_form.fields_form_unnamed, class="radio unnamed") }}
+            </div>
+            {{ render_writting_field(fields_form.fields_form_compare, class="all-columns") }}
+        </div>
+        <div class="file-upload-wrapper" initial-text="Select correspondence files ( .txt )" data-text="">
+            {{ fields_form.fields_form_corresp(class_="file-upload-field") }}
+        </div>
+    </form>
+</div>

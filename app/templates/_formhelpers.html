@@ -1,0 +1,11 @@
+{% macro render_writting_field(field, class) %}
+    {{ field.label }}
+    {{ field(class_=class) }}
+{% endmacro %}
+
+{% macro render_radio_field(fields, class, form) %}
+    {% for field in fields %}
+        {{ field(class_=class, form=form) }}
+        {{ field.label }}
+    {% endfor %}
+{% endmacro %}

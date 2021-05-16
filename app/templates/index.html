@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block application_page %}
+    <form class="hide" id="result-form" method="post" action="{{ url_for('result') }}">
+        {{ file_form.csrf_token(id="result_form_csrf_token") }}
+    </form>
+    <form class="hide" id="preview-form" method="post" action="{{ url_for('preview') }}">
+        {{ file_form.csrf_token(id="preview_form_csrf_token") }}
+    </form>
+
+    {% include 'forms.html' %}
+
+    <div class="submit-wrapper">
+        <div class="submit-container show" id="parameter-file-submit">
+            <button class="submit-button" type="submit" form="parameter-file-form">Generate dataset
+                <img class="side-icon" src="{{ url_for('static', filename='img/cogs.svg') }}" alt="">
+            </button>
+        </div>
+        <div class="submit-container hide" id="parameter-fields-submit">
+            <button class="submit-button" type="submit" form="parameter-fields-form">Generate dataset
+                <img class="side-icon" src="{{ url_for('static', filename='img/cogs.svg') }}" alt="">
+            </button>
+        </div>
+        <button class="submit-button" type="submit" form="preview-form">Result preview
+            <img class="side-icon" src="{{ url_for('static', filename='img/magnifier.svg') }}" alt="">
+        </button>
+        <button class="submit-button" type="submit" form="result-form">Result zip file
+            <img class="side-icon" src="{{ url_for('static', filename='img/download.svg') }}" alt="">
+        </button>
+    </div>
+{% endblock %}
+
+{% block notifications %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <script>
+                {% for category, message in messages %}
+                    {% if category == 'success' %}
+                        msgboxPersistent.show('{{ message }}', type = '{{ category }}');
+                    {% else %}
+                        msgboxTemporary.show('{{ message }}', type = '{{ category }}');
+                    {% endif %}
+                {% endfor %}
+            </script>
+        {% endif %}
+    {% endwith %}
+{% endblock %}
