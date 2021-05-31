@@ -8,7 +8,7 @@ from sassutils.wsgi import SassMiddleware
 
 from .forms import ParamFileForm, ParamFieldsForm
 from .gans import synthetic_generation
-from .utils import clean_create_dir, save_file, zip_files
+from .utils import clean_create_dir, save_file, create_param_file, zip_files
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -48,6 +48,14 @@ def prepare():
         session['form_error'] = True
         return redirect(url_for('index'))
     else:
+        if 'generationID' in session:
+            all_resources_dir = os.path.join(app.instance_path, app.config['RESOURCES'])
+            all_results_dir = os.path.join(app.instance_path, app.config['RESULTS'])
+            generation_id = session['generationID']
+            clean_create_dir(generation_id, all_resources_dir)
+            os.rmdir(os.path.join(all_resources_dir, generation_id))
+            clean_create_dir(generation_id, all_results_dir)
+            os.rmdir(os.path.join(all_results_dir, generation_id))
         generation_id = ''.join([time.strftime('%H%M%S'), str(uuid.uuid4().hex)])
         session['generationID'] = generation_id
         return redirect(url_for('generate'), code=307)
@@ -80,8 +88,16 @@ def generate():
     else:
         model = fields_form.fields_form_model.data
         dataset = save_file(fields_form.fields_form_dataset.data, resources_dir)
-        # TODO : créer un fichier de paramètres à partir des champs du formulaire
-        param_file = None
+        samples = fields_form.fields_form_samples.data
+        epochs = fields_form.fields_form_epochs.data
+        names = fields_form.fields_form_names.data
+        categories = fields_form.fields_form_categories.data
+        correlees = fields_form.fields_form_correlees.data
+        drop = fields_form.fields_form_drop.data
+        unnamed = fields_form.fields_form_unnamed.data
+        compare = fields_form.fields_form_compare.data
+        param_file = create_param_file(samples, epochs, names, categories,
+                                       correlees, drop, unnamed, compare, resources_dir)
         if fields_form.fields_form_corresp.data[0] != '':
             for file in fields_form.fields_form_corresp.data:
                 try:
@@ -91,6 +107,7 @@ def generate():
 
     synthetic_generation(model, dataset, param_file, corresp_files, result_dir)
     clean_create_dir(generation_id, all_resources_dir)
+    os.rmdir(os.path.join(all_resources_dir, generation_id))
     zip_files(result_dir, app.config['RESULT_FOLDER'])
 
     session['id_finished'] = True

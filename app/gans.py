@@ -33,11 +33,14 @@ def synthetic_generation(model, dataset, param_file, corresp_files, result_dir):
     unnamed = data[6][1]
     to_compare = data[7][1:]
 
-    df.drop(names, axis=1, inplace=True)
-    df.drop(correlees, axis=1, inplace=True)
-    df.drop(to_drop, axis=1, inplace=True)
+    if names != ['']:
+        df.drop(names, axis=1, inplace=True)
+    if correlees != ['']:
+        df.drop(correlees, axis=1, inplace=True)
+    if to_drop != ['']:
+        df.drop(to_drop, axis=1, inplace=True)
 
-    if unnamed.lower() != 'keep':
+    if unnamed.lower() == 'drop':
         df = df.loc[:, ~df.columns.str.match('Unnamed')]
 
     samples = []
@@ -68,10 +71,11 @@ def synthetic_generation(model, dataset, param_file, corresp_files, result_dir):
             plt.savefig(summary, format='pdf')
             plt.close()
 
-        sample.insert(1, names[0], 0)
-        faker = Faker()
-        for n in tqdm(range(nb_samples)):
-            sample.loc[sample.index[n], names[0]] = faker.last_name()
+        if names != ['']:
+            sample.insert(1, names[0], 0)
+            faker = Faker()
+            for n in tqdm(range(nb_samples)):
+                sample.loc[sample.index[n], names[0]] = faker.last_name()
 
         for corresp_file in corresp_files:
             reader = csv.reader(open(corresp_file, "r"), delimiter=',')
@@ -105,9 +109,9 @@ def synthetic_generation(model, dataset, param_file, corresp_files, result_dir):
         summary.close()
 
 
-def ctgan_generation(dataframe, category, nb_epochs, nb_samples):
+def ctgan_generation(dataframe, categories, nb_epochs, nb_samples):
     ctgan = CTGANSynthesizer(verbose=True, epochs=nb_epochs)
-    ctgan.fit(dataframe, category)
+    ctgan.fit(dataframe, categories)
 
     samples = ctgan.sample(nb_samples)
 

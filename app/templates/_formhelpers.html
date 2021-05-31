@@ -1,11 +1,11 @@
-{% macro render_writting_field(field, class) %}
+{% macro render_writting_field(field) %}
     {{ field.label }}
-    {{ field(class_=class) }}
+    {{ field(**kwargs)|safe }}
 {% endmacro %}
 
-{% macro render_radio_field(fields, class, form) %}
+{% macro render_radio_field(fields) %}
     {% for field in fields %}
-        {{ field(class_=class, form=form) }}
+        {{ field(**kwargs)|safe }}
         {{ field.label }}
     {% endfor %}
 {% endmacro %}
