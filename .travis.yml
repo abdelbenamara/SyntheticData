@@ -7,6 +7,9 @@ python:
 services:
   - docker
 
+before_install:
+  - pip install --upgrade pip
+
 after_success:
   - export COMMIT=${TRAVIS_COMMIT::7}
   - export TAG=`if [ ! -z "$TRAVIS_TAG" ]; then echo "$TRAVIS_TAG"; else echo "$TRAVIS_BRANCH--$COMMIT"; fi`
