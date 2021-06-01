@@ -10,7 +10,7 @@ services:
 before_install:
   - pip install --upgrade pip
 
-after_success:
+install:
   - export COMMIT=${TRAVIS_COMMIT::7}
   - export TAG=`if [ ! -z "$TRAVIS_TAG" ]; then echo "$TRAVIS_TAG"; else echo "$TRAVIS_BRANCH--$COMMIT"; fi`
   - docker login -u $DOCKER_USER -p $DOCKER_PASS
