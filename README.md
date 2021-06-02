@@ -39,14 +39,14 @@
   
 * To retrieve the docker image :
   ```
-  docker pull abdelbenamara/synthetic-data-app:latest
+  docker pull abdelbenamara/synthetic-data-app
   ```
   
 * To set up secret keys for production :
   ```
-  SECRET_KEY=$(pyhton -c 'import random, string; print("".join([random.choice(string.printable) for _ in range(24)]));')
+  SECRET_KEY=$(python -c 'import random, string; print("".join([random.choice(string.printable) for _ in range(24)]));')
   export SECRET_KEY
-  WTF_CSRF_SECRET_KEY=$(pyhton -c 'import random, string; print("".join([random.choice(string.printable) for _ in range(24)]));')
+  WTF_CSRF_SECRET_KEY=$(python -c 'import random, string; print("".join([random.choice(string.printable) for _ in range(24)]));')
   export WTF_CSRF_SECRET_KEY
   ```
   
