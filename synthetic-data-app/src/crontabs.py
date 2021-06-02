@@ -1,6 +1,6 @@
 from flask_crontab import Crontab
 
-from app import app
+from . import app
 from .utils import clean_create_dir
 
 crontab = Crontab(app)

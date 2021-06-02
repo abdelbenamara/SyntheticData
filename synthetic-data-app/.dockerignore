@@ -133,9 +133,8 @@ dmypy.json
 
 # IDE
 .idea/
-
-# Git
-.gitignore
+.vscode/
 
 # Development
 development/
+src/tests/

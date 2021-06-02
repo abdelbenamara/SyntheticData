@@ -13,7 +13,7 @@ from .utils import clean_create_dir, save_file, create_param_file, zip_files
 app = Flask(__name__)
 app.config.from_object('config')
 app.wsgi_app = SassMiddleware(app.wsgi_app, {
-    'app': {'sass_path': 'static/scss', 'css_path': 'static/css', 'strip_extension': True}
+    'src': {'sass_path': 'static/scss', 'css_path': 'static/css', 'strip_extension': True}
 })
 csrf = CSRFProtect(app)
 

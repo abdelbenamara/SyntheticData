@@ -10,13 +10,13 @@ python:
 services:
   - docker
 
-install:
-  - pip install --upgrade pip
+install: skip
+
+before_script:
+  - cd synthetic-data-app
 
 script:
-  - export COMMIT=${TRAVIS_COMMIT::7}
-  - export TAG=`if [ ! -z "$TRAVIS_TAG" ]; then echo "$TRAVIS_TAG"; else echo "$COMMIT"; fi`
   - docker login -u $DOCKER_USER -p $DOCKER_PASS
-  - docker build -t $IMAGE_NAME:$TAG .
-  - docker tag $IMAGE_NAME:$TAG $IMAGE_NAME:latest
+  - docker build -t $IMAGE_NAME .
+  - docker tag $IMAGE_NAME $IMAGE_NAME:latest
   - docker push $IMAGE_NAME:latest
