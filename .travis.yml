@@ -1,13 +1,19 @@
 branches:
   only:
     - master
+
 language: python
+
 python:
   - "3.8"
+
 services:
   - docker
 
 install:
+  - pip install --upgrade pip
+
+script:
   - export COMMIT=${TRAVIS_COMMIT::7}
   - export TAG=`if [ ! -z "$TRAVIS_TAG" ]; then echo "$TRAVIS_TAG"; else echo "$COMMIT"; fi`
   - docker login -u $DOCKER_USER -p $DOCKER_PASS
