@@ -23,14 +23,14 @@
 
 * Optionally, to use scheduled tasks (e.g. with [flask-crontab](https://github.com/frostming/flask-crontab)) :
   ```
-  bash development/cron.sh
+  bash development/crontab.sh
   ```
 
 * Open a web browser and navigate to http://localhost:5000/
   
 ## For production
 
-* The application use [docker](https://www.docker.com/get-started)
+* The application is built with [docker](https://www.docker.com/get-started)
 
 * Before all :
   ```
