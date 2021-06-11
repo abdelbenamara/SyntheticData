@@ -52,7 +52,7 @@
   
 * To run the docker image :
   ```
-  docker run -d --rm -p HOST_PORT:5000 --env-file env.list --name CONTAINER_NAME abdelbenamara/synthetic-data-app
+  docker run -d --rm -p HOST_PORT:5000 --env-file production/env.list --name CONTAINER_NAME abdelbenamara/synthetic-data-app
   ```
 
 * Open a web browser and navigate to ``` HOST_IP:HOST_PORT ```
