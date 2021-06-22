@@ -10,12 +10,18 @@ python:
 services:
   - docker
 
-install: skip
+before_install:
+  - cd synthetic-data-app/
+  - pip install --upgrade pip
 
-before_script:
-  - cd synthetic-data-app
+install:
+  - pip install -r requirements.txt
+  - pip install -U pytest
 
 script:
+  - pytest
+
+after_success:
   - docker login -u $DOCKER_USER -p $DOCKER_PASS
   - docker build -t $IMAGE_NAME .
   - docker tag $IMAGE_NAME $IMAGE_NAME:latest

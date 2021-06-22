@@ -37,6 +37,8 @@ class MessageBox {
         msgboxBox.classList.add("msgbox-box");
         if (type === 'error') {
             msgboxBox.classList.add("error-box");
+        } else if (type==='warning') {
+            msgboxBox.classList.add("warning-box");
         } else if (type === 'success') {
             msgboxBox.classList.add("success-box");
         }
@@ -153,9 +155,9 @@ let msgboxTemporary = new MessageBox("#msgbox-area", {
 });
 
 let ganFormAlert = function () {
-    msgboxPersistent.show("Please wait while the sample is generated.\nSynthetic data generation might take some time.");
+    msgboxTemporary.show("Your sample is being generated.\nSynthetic data generation might take some time.");
     setTimeout(() => {
-        msgboxPersistent.show("Generation ID was successfully created.\nYou can quit and come back later if you want.", 'success')
+        msgboxPersistent.show("Generation ID was successfully created.\nYou can come back later to download your sample.", 'success')
     }, 3 * 1000)
 };
 

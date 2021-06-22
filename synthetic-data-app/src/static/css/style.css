@@ -325,6 +325,8 @@ body {
       opacity: 0; }
   .msgbox-area .error-box {
     background: #CB4335; }
+  .msgbox-area .warning-box {
+    background: #E67E22; }
   .msgbox-area .success-box {
     background: #28B463; }
   .msgbox-area .msgbox-content {

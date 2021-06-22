@@ -1,0 +1,4 @@
+Geography,City
+France,Lyon,Paris,Marseille,Lille
+Spain,Barcelona,Madrid,Grenada,Valencia
+Germany,Berlin,Munich,Franckfurt,Cologne

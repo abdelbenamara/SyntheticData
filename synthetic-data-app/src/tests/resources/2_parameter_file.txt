@@ -1,0 +1,8 @@
+samples,10000
+epochs,300
+names,Surname
+categories,Age,Gender,Exited,HasCrCard,IsActiveMember,City
+correlees,Geography
+drop,RowNumber
+unnamed,drop
+compare,Age,Geography

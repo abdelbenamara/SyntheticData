@@ -63,13 +63,8 @@ def synthetic_generation(model, dataset, param_file, corresp_files, result_dir):
 
     for (sample, sample_file, summary_file) in zip(samples, samples_files, summary_files):
         table_evaluator = TableEvaluator(df, sample, cat_cols=categories)
+        similarity_fig = plt.figure(figsize=(15, 4))
         figure_evaluation(table_evaluator)
-
-        summary = PdfPages(summary_file)
-        for f in plt.get_fignums():
-            plt.figure(f)
-            plt.savefig(summary, format='pdf')
-            plt.close()
 
         if names != ['']:
             sample.insert(1, names[0], 0)
@@ -99,13 +94,21 @@ def synthetic_generation(model, dataset, param_file, corresp_files, result_dir):
         comparison = df_to_compare.merge(sample_to_compare, how='outer', indicator=True)
         identical = comparison[comparison['_merge'] == 'both']
 
+        summary = PdfPages(summary_file)
+        if 'ctgan' in summary_file:
+            current_model = 'CTGAN'
+        elif 'tvae' in summary_file:
+            current_model = 'TVAE'
+        else:
+            current_model = 'WGAN'
         similarity = identical.shape[0] / (df.shape[0] * nb_samples)
-        fig = plt.figure(figsize=(15, 3))
-        similarity_title = '\nSimilarity with the original dataset depending on\n{} ' \
-                           '\n\n= {}%'.format(', '.join(to_compare), similarity)
-        fig.suptitle(similarity_title, fontsize=32)
-        plt.savefig(summary, format='pdf')
-        plt.close()
+        similarity_title = '\nModel used : {}\n\nSimilarity with the original dataset depending on :\n{} ' \
+                           '\n\n= {}%'.format(current_model, ', '.join(to_compare), similarity)
+        similarity_fig.suptitle(similarity_title, fontsize=32)
+        for f in plt.get_fignums():
+            plt.figure(f)
+            plt.savefig(summary, format='pdf')
+            plt.close()
         summary.close()
 
 

@@ -1,8 +1,11 @@
 import os
+import re
 import time
 import uuid
+import zipfile
 
-from flask import Flask, session, flash, render_template, redirect, url_for, send_from_directory
+import PyPDF2
+from flask import Flask, session, flash, render_template, redirect, url_for, make_response, send_from_directory
 from flask_wtf import CSRFProtect
 from sassutils.wsgi import SassMiddleware
 
@@ -22,21 +25,7 @@ csrf = CSRFProtect(app)
 def index():
     file_form = ParamFileForm()
     fields_form = ParamFieldsForm()
-    if 'form_error' in session:
-        flash('There was an error in your form.\\nPlease make sure to fill in all fields correctly.', 'error')
-        session.pop('form_error', None)
-    if 'id_missing' in session:
-        flash('Generation ID is missing.\\nPlease generate a new sample to fix this issue.', 'error')
-        session.pop('id_missing', None)
-    if 'id_invalid' in session:
-        flash('Generation ID is invalid.\\nPlease generate a new sample to fix this issue.', 'error')
-        session.pop('id_invalid', None)
-    if 'id_not_finished' in session:
-        flash('Please try to download your sample later.\\nSynthetic data generation might take some time.', 'info')
-        session.pop('id_processing', None)
-    if 'id_finished' in session:
-        flash('Congratulations, your sample is ready !\\nYou can now preview or download it below.', 'success')
-        session.pop('id_finished', None)
+    flash_management()
     return render_template('index.html', name='index', file_form=file_form, fields_form=fields_form)
 
 
@@ -48,16 +37,16 @@ def prepare():
         session['form_error'] = True
         return redirect(url_for('index'))
     else:
-        if 'generationID' in session:
+        if 'generation_id' in session:
             all_resources_dir = os.path.join(app.instance_path, app.config['RESOURCES'])
             all_results_dir = os.path.join(app.instance_path, app.config['RESULTS'])
-            generation_id = session['generationID']
+            generation_id = session['generation_id']
             clean_create_dir(generation_id, all_resources_dir)
             os.rmdir(os.path.join(all_resources_dir, generation_id))
             clean_create_dir(generation_id, all_results_dir)
             os.rmdir(os.path.join(all_results_dir, generation_id))
         generation_id = ''.join([time.strftime('%H%M%S'), str(uuid.uuid4().hex)])
-        session['generationID'] = generation_id
+        session['generation_id'] = generation_id
         return redirect(url_for('generate'), code=307)
 
 
@@ -68,7 +57,7 @@ def generate():
 
     all_resources_dir = os.path.join(app.instance_path, app.config['RESOURCES'])
     all_results_dir = os.path.join(app.instance_path, app.config['RESULTS'])
-    generation_id = session['generationID']
+    generation_id = session['generation_id']
 
     resources_dir = clean_create_dir(generation_id, all_resources_dir)
     result_dir = clean_create_dir(generation_id, all_results_dir)
@@ -108,38 +97,118 @@ def generate():
     synthetic_generation(model, dataset, param_file, corresp_files, result_dir)
     clean_create_dir(generation_id, all_resources_dir)
     os.rmdir(os.path.join(all_resources_dir, generation_id))
-    zip_files(result_dir, app.config['RESULT_FOLDER'])
+    zip_files(result_dir, app.config['SYNTHETIC_DATA'])
 
-    session['id_finished'] = True
+    session['sample_ready'] = True
     return redirect(url_for('index'))
 
 
-@app.route('/preview', methods=['GET', 'POST'])
-def preview():
-    # TODO : ouvrir le zip de résultat dans le code et afficher les '*-summary.pdf' (dans une iframe ?)
-    return 0
-
-
-@app.route('/result', methods=['POST'])
-def result():
-    if 'generationID' in session:
-        generation_id = session['generationID']
+@app.route('/summary', methods=['GET', 'POST'])
+def summary():
+    if 'generation_id' in session:
+        generation_id = session['generation_id']
         all_results_dir = os.path.join(app.instance_path, app.config['RESULTS'])
         for dirname in os.listdir(all_results_dir):
             if dirname == generation_id:
                 result_dir = os.path.join(all_results_dir, generation_id)
                 for filename in os.listdir(result_dir):
-                    if filename == app.config['RESULT_FOLDER']:
-                        return send_from_directory(result_dir, filename, as_attachment=True)
+                    if filename == app.config['SYNTHETIC_DATA']:
+                        # TODO : faire une méthode dans utils pour ce qu'il y a ci-dessous
+                        pdf_merger = PyPDF2.PdfFileMerger()
+                        with zipfile.ZipFile(os.path.join(result_dir, filename)) as zipfolder:
+                            for summary_file in zipfolder.namelist():
+                                if re.match('.*summary\\.pdf', summary_file):
+                                    for file in result_dir:
+                                        if file == summary_file:
+                                            os.remove(file)
+                                            break
+                                    zipfolder.extract(summary_file, result_dir)
+                                    target_file = os.path.join(result_dir, summary_file)
+                                    pdf_merger.append(target_file)
+                                    os.remove(target_file)
+                        for file in os.listdir(result_dir):
+                            if file == app.config['SUMMARY_PDF']:
+                                os.remove(file)
+                                continue
+                        binary_file = os.path.join(result_dir, app.config['SUMMARY_PDF'])
+                        pdf_merger.write(binary_file)
+                        pdf_merger.close()
+                        with open(binary_file, 'rb') as b:
+                            pdf_bytes = b.read()
+                        os.remove(binary_file)
+                        preview_file = make_response(pdf_bytes)
+                        preview_file.headers['Content-Type'] = 'application/pdf'
+                        preview_file.headers['Content-Disposition'] = 'inline; filename=summary.pdf'
+                        return preview_file
 
-        all_resources_dir = os.path.join(app.instance_path, app.config['RESOURCES'])
-        for dirname in os.listdir(all_resources_dir):
-            if dirname == generation_id:
-                session['id_not_finished'] = True
-                return redirect(url_for('index'))
+        if generation_not_completed(generation_id):
+            return redirect(url_for('index'))
 
         session['id_invalid'] = True
         return redirect(url_for('index'))
     else:
         session['id_missing'] = True
         return redirect(url_for('index'))
+
+
+@app.route('/result', methods=['POST'])
+def result():
+    if 'generation_id' in session:
+        generation_id = session['generation_id']
+        all_results_dir = os.path.join(app.instance_path, app.config['RESULTS'])
+        for dirname in os.listdir(all_results_dir):
+            if dirname == generation_id:
+                result_dir = os.path.join(all_results_dir, generation_id)
+                for filename in os.listdir(result_dir):
+                    if filename == app.config['SYNTHETIC_DATA']:
+                        return send_from_directory(result_dir, filename, as_attachment=True)
+
+        if generation_not_completed(generation_id):
+            return redirect(url_for('index'))
+
+        session['id_invalid'] = True
+        return redirect(url_for('index'))
+    else:
+        session['id_missing'] = True
+        return redirect(url_for('index'))
+
+
+def generation_not_completed(generation_id):
+    all_resources_dir = os.path.join(app.instance_path, app.config['RESOURCES'])
+    for dirname in os.listdir(all_resources_dir):
+        if dirname == generation_id:
+            session['generation_not_completed'] = True
+            return True
+    return False
+
+
+def flash_management():
+    if 'form_error' in session:
+        flash('There was an error in your form.\\nPlease make sure to fill in all fields correctly.', 'error')
+        session.pop('form_error', None)
+    if 'id_missing' in session:
+        flash('Generation ID is missing.\\nPlease generate a new sample to fix this issue.', 'error')
+        session.pop('id_missing', None)
+    if 'id_invalid' in session:
+        flash('Generation ID is invalid.\\nPlease generate a new sample to fix this issue.', 'error')
+        session.pop('id_invalid', None)
+    if 'generation_not_completed' in session:
+        flash('Your sample is not yet completed.\\nPlease come back later to preview or download it.', 'warning')
+        session.pop('generation_not_completed', None)
+    elif 'generation_id' in session:
+        in_progress = False
+        all_resources_dir = os.path.join(app.instance_path, app.config['RESOURCES'])
+        generation_id = session['generation_id']
+        for dirname in os.listdir(all_resources_dir):
+            if dirname == generation_id:
+                flash('Your sample is being generated.\\nIt might take some time, you can come back later.', 'info')
+                session.pop('generation_in_progress', None)
+                in_progress = True
+        if not in_progress:
+            all_results_dir = os.path.join(app.instance_path, app.config['RESULTS'])
+            for dirname in os.listdir(all_results_dir):
+                if dirname == generation_id:
+                    session['sample_ready'] = True
+    if 'sample_ready' in session:
+        flash('You result zip folder is available.\\nYou can download it or preview its summary below.', 'success')
+        session.pop('sample_ready', None)

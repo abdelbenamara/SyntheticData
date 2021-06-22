@@ -17,4 +17,6 @@ RESOURCES = 'resources'
 
 RESULTS = 'results'
 
-RESULT_FOLDER = 'synthetic_data.zip'
+SYNTHETIC_DATA = 'synthetic_data.zip'
+
+SUMMARY_PDF = 'summary.pdf'

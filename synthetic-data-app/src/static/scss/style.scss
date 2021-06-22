@@ -24,6 +24,7 @@ $msgbox-area-width: 480px;
 $msgbox-box-color: #FDFEFE;
 $msgbox-box-background-color: #2471A3;
 $msgbox-box-error-background-color: #CB4335;
+$msgbox-box-warning-background-color: #E67E22;
 $msgbox-box-success-background-color: #28B463;
 $msgbox-box-box-shadow: 2px 4px 8px rgba($theme-color-1, 0.5);
 $msgbox-box-transition-time: 400ms;
@@ -478,6 +479,10 @@ body {
 
   .error-box {
     background: $msgbox-box-error-background-color;
+  }
+
+  .warning-box {
+    background: $msgbox-box-warning-background-color;
   }
 
   .success-box {

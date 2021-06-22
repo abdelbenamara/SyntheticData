@@ -4,7 +4,7 @@
     <form class="hide" id="result-form" method="post" action="{{ url_for('result') }}">
         {{ file_form.csrf_token(id="result_form_csrf_token") }}
     </form>
-    <form class="hide" id="preview-form" method="post" action="{{ url_for('preview') }}">
+    <form class="hide" id="summary-form" method="post" action="{{ url_for('summary') }}" target="_blank">
         {{ file_form.csrf_token(id="preview_form_csrf_token") }}
     </form>
 
@@ -21,10 +21,10 @@
                 <img class="side-icon" src="{{ url_for('static', filename='img/cogs.svg') }}" alt="">
             </button>
         </div>
-        <button class="submit-button" type="submit" form="preview-form">Result preview
+        <button class="submit-button" type="submit" form="summary-form">Summary preview
             <img class="side-icon" src="{{ url_for('static', filename='img/magnifier.svg') }}" alt="">
         </button>
-        <button class="submit-button" type="submit" form="result-form">Result zip file
+        <button class="submit-button" type="submit" form="result-form">Result zip folder
             <img class="side-icon" src="{{ url_for('static', filename='img/download.svg') }}" alt="">
         </button>
     </div>
