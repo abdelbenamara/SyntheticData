@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/abdelbenamara/SyntheticData.svg?branch=master)](https://travis-ci.com/github/abdelbenamara/SyntheticData)
+[![Build Status](https://travis-ci.com/abdelbenamara/SyntheticData.svg?token=Faxx7x1Akpy5JMhYXeUC&branch=master)](https://travis-ci.com/github/abdelbenamara/SyntheticData)
 
 # Synthetic Data Application
 
@@ -41,6 +41,12 @@
   ```
   docker pull abdelbenamara/synthetic-data-app
   ```
+  
+  * Alternatively, to build the docker image :
+
+    ```
+    docker build -t abdelbenamara/synthetic-data-app .
+    ```
   
 * To set up secret keys for production :
   ```
