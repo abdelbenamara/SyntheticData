@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Generate synthetic dataset</title>
+    <title>Synthetic data</title>
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
@@ -13,7 +13,7 @@
 <div id="main-container">
     <header>
         <div class="horizontal-line"></div>
-        <span class="span-text">GENERATE SYNTHETIC DATASET</span>
+        <span class="span-text">SYNTHETIC DATA</span>
         <div class="horizontal-line"></div>
     </header>
     <div id="selector-container">
@@ -22,51 +22,25 @@
                 <img class="side-icon" src="{{ url_for('static', filename='img/technics.svg') }}" alt="">
             </span>
         </div>
-        <div class="selector selected" id="application">
-            <span class="selector-text">Application
+        <div class="selector selected" id="generation">
+            <span class="selector-text">Generation
                 <img class="side-icon" src="{{ url_for('static', filename='img/cells.svg') }}" alt="">
             </span>
         </div>
-        <div class="selector not-selected" id="documentation">
-            <span class="selector-text">Documentation
-                <img class="side-icon" src="{{ url_for('static', filename='img/information.svg') }}" alt="">
+        <div class="selector not-selected" id="evaluation">
+            <span class="selector-text">Evaluation
+                <img class="side-icon" src="{{ url_for('static', filename='img/evaluation.svg') }}" alt="">
             </span>
         </div>
     </div>
     <div class="page hide" id="technologies-page">
-        <div class="definitions-container">
-            <div class="definition b-ctgan">
-                <h1>CTGAN</h1>
-                <div class="horizontal-line"></div>
-                <p>CTGAN is a GAN-based method to model tabular data distribution and sample rows from the distribution.
-                    In CTGAN, the mode-specific normalization overcome the non-Gaussian and multimodal distribution. A
-                    conditional generator and training-by-sampling were design to deal with the imbalanced discrete
-                    columns. And fully-connected networks and several recent techniques to train a high-quality model
-                    are used.</p>
-            </div>
-            <div class="definition b-tvae">
-                <h1>TVAE</h1>
-                <div class="horizontal-line"></div>
-                <p>Variational autoencoder is another neural network generative model. VAE was adapted to tabular data
-                    by using the same preprocessing and modifying the loss function. This model is called TVAE. In TVAE,
-                    two neural networks are used to model coefficients, and they are trained using evidence lower-bound
-                    (ELBO) loss.</p>
-            </div>
-            <div class="definition b-wgan">
-                <h1>WGAN</h1>
-                <div class="horizontal-line"></div>
-                <p>Wasserstein GAN, or WGAN, is a type of generative adversarial network that minimizes an approximation
-                    of the Earth-Mover's distance (EM) rather than the Jensen-Shannon divergence as in the original GAN
-                    formulation. It leads to more stable training than original GANs with less evidence of mode
-                    collapse.</p>
-            </div>
-        </div>
+        {% block technologies_page %}{% endblock %}
     </div>
-    <div class="page show" id="application-page">
-        {% block application_page %}{% endblock %}
+    <div class="page show" id="generation-page">
+        {% block generation_page %}{% endblock %}
     </div>
-    <div class="page hide" id="documentation-page">
-        <h1>A guide will be added later</h1>
+    <div class="page hide" id="evaluation-page">
+        {% block evaluation_page %}{% endblock %}
     </div>
     <footer>
         <div class="horizontal-line"></div>

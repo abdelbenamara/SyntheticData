@@ -1,17 +1,16 @@
 import os
-import re
 import time
 import uuid
-import zipfile
 
-import PyPDF2
-from flask import Flask, session, flash, render_template, redirect, url_for, make_response, send_from_directory
+from flask import Flask, session, render_template, redirect, url_for, make_response, send_from_directory
 from flask_wtf import CSRFProtect
 from sassutils.wsgi import SassMiddleware
 
-from .forms import ParamFileForm, ParamFieldsForm
-from .gans import synthetic_generation
-from .utils import clean_create_dir, save_file, create_param_file, zip_files
+from .forms import GenerationParamFileForm, GenerationParamFieldsForm, \
+    EvaluationParamFileForm, EvaluationParamFieldsForm
+from .gans import synthetic_generation, synthetic_evaluation
+from .utils import clean_create_dir, save_file, create_generation_param_file, create_evaluation_param_file, zip_files, \
+    get_bytes_from_all_pdf_in_zip, generation_not_completed, flash_management
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -20,128 +19,147 @@ app.wsgi_app = SassMiddleware(app.wsgi_app, {
 })
 csrf = CSRFProtect(app)
 
+ALL_RESOURCES_DIR = os.path.join(app.instance_path, app.config['RESOURCES'])
+ALL_RESULTS_DIR = os.path.join(app.instance_path, app.config['RESULTS'])
+
 
 @app.route('/')
 def index():
-    file_form = ParamFileForm()
-    fields_form = ParamFieldsForm()
-    flash_management()
-    return render_template('index.html', name='index', file_form=file_form, fields_form=fields_form)
+    generation_file_form = GenerationParamFileForm()
+    generation_fields_form = GenerationParamFieldsForm()
+    evaluation_file_form = EvaluationParamFileForm()
+    evaluation_fields_form = EvaluationParamFieldsForm()
+    flash_management(ALL_RESOURCES_DIR, ALL_RESULTS_DIR, app.config['SUMMARY_PDF'], session)
+    return render_template('index.html', name='index', generation_file_form=generation_file_form,
+                           generation_fields_form=generation_fields_form, evaluation_file_form=evaluation_file_form,
+                           evaluation_fields_form=evaluation_fields_form)
 
 
 @app.route('/prepare', methods=['POST'])
 def prepare():
-    file_form = ParamFileForm()
-    fields_form = ParamFieldsForm()
-    if not (file_form.validate_on_submit() or fields_form.validate_on_submit()):
+    generation_file_form = GenerationParamFileForm()
+    generation_fields_form = GenerationParamFieldsForm()
+    evaluation_file_form = EvaluationParamFileForm()
+    evaluation_fields_form = EvaluationParamFieldsForm()
+    if not (generation_file_form.validate_on_submit() or generation_fields_form.validate_on_submit()
+            or evaluation_file_form.validate_on_submit() or evaluation_fields_form.validate_on_submit()):
         session['form_error'] = True
         return redirect(url_for('index'))
     else:
-        if 'generation_id' in session:
-            all_resources_dir = os.path.join(app.instance_path, app.config['RESOURCES'])
-            all_results_dir = os.path.join(app.instance_path, app.config['RESULTS'])
-            generation_id = session['generation_id']
-            clean_create_dir(generation_id, all_resources_dir)
-            os.rmdir(os.path.join(all_resources_dir, generation_id))
-            clean_create_dir(generation_id, all_results_dir)
-            os.rmdir(os.path.join(all_results_dir, generation_id))
-        generation_id = ''.join([time.strftime('%H%M%S'), str(uuid.uuid4().hex)])
-        session['generation_id'] = generation_id
-        return redirect(url_for('generate'), code=307)
+        if 'session_id' in session:
+            session_id = session['session_id']
+            clean_create_dir(session_id, ALL_RESOURCES_DIR)
+            os.rmdir(os.path.join(ALL_RESOURCES_DIR, session_id))
+            clean_create_dir(session_id, ALL_RESULTS_DIR)
+            os.rmdir(os.path.join(ALL_RESULTS_DIR, session_id))
+        session_id = ''.join([time.strftime('%H%M%S'), str(uuid.uuid4().hex)])
+        session['session_id'] = session_id
+        if generation_file_form.validate_on_submit() or generation_fields_form.validate_on_submit():
+            return redirect(url_for('generate'), code=307)
+        else:
+            return redirect(url_for('evaluate'), code=307)
 
 
 @app.route('/generate', methods=['POST'])
 def generate():
-    file_form = ParamFileForm()
-    fields_form = ParamFieldsForm()
+    generation_file_form = GenerationParamFileForm()
+    generation_fields_form = GenerationParamFieldsForm()
 
-    all_resources_dir = os.path.join(app.instance_path, app.config['RESOURCES'])
-    all_results_dir = os.path.join(app.instance_path, app.config['RESULTS'])
-    generation_id = session['generation_id']
+    session_id = session['session_id']
 
-    resources_dir = clean_create_dir(generation_id, all_resources_dir)
-    result_dir = clean_create_dir(generation_id, all_results_dir)
+    resources_dir = clean_create_dir(session_id, ALL_RESOURCES_DIR)
+    result_dir = clean_create_dir(session_id, ALL_RESULTS_DIR)
 
     corresp_files = []
 
-    if file_form.validate_on_submit():
-        model = file_form.file_form_model.data
-        dataset = save_file(file_form.file_form_dataset.data, resources_dir)
-        param_file = save_file(file_form.file_form_param.data, resources_dir)
-        if file_form.file_form_corresp.data[0] != '':
-            for file in file_form.file_form_corresp.data:
+    if generation_file_form.validate_on_submit():
+        model = generation_file_form.generation_file_model.data
+        dataset = save_file(generation_file_form.generation_file_dataset.data, resources_dir)
+        param_file = save_file(generation_file_form.generation_file_param.data, resources_dir)
+        if generation_file_form.generation_file_corresp.data[0] != '':
+            for file in generation_file_form.generation_file_corresp.data:
                 try:
                     corresp_files.append(save_file(file, resources_dir))
                 finally:
                     continue
     else:
-        model = fields_form.fields_form_model.data
-        dataset = save_file(fields_form.fields_form_dataset.data, resources_dir)
-        samples = fields_form.fields_form_samples.data
-        epochs = fields_form.fields_form_epochs.data
-        names = fields_form.fields_form_names.data
-        categories = fields_form.fields_form_categories.data
-        correlees = fields_form.fields_form_correlees.data
-        drop = fields_form.fields_form_drop.data
-        unnamed = fields_form.fields_form_unnamed.data
-        compare = fields_form.fields_form_compare.data
-        param_file = create_param_file(samples, epochs, names, categories,
-                                       correlees, drop, unnamed, compare, resources_dir)
-        if fields_form.fields_form_corresp.data[0] != '':
-            for file in fields_form.fields_form_corresp.data:
+        model = generation_fields_form.generation_fields_model.data
+        dataset = save_file(generation_fields_form.generation_fields_dataset.data, resources_dir)
+        samples = generation_fields_form.generation_fields_samples.data
+        epochs = generation_fields_form.generation_fields_epochs.data
+        names = generation_fields_form.generation_fields_names.data
+        categories = generation_fields_form.generation_fields_categories.data
+        correlees = generation_fields_form.generation_fields_correlees.data
+        drop = generation_fields_form.generation_fields_drop.data
+        unnamed = generation_fields_form.generation_fields_unnamed.data
+        compare = generation_fields_form.generation_fields_compare.data
+        param_file = create_generation_param_file(samples, epochs, names, categories,
+                                                  correlees, drop, unnamed, compare, resources_dir)
+        if generation_fields_form.generation_fields_corresp.data[0] != '':
+            for file in generation_fields_form.generation_fields_corresp.data:
                 try:
                     corresp_files.append(save_file(file, resources_dir))
                 finally:
                     continue
 
-    synthetic_generation(model, dataset, param_file, corresp_files, result_dir)
-    clean_create_dir(generation_id, all_resources_dir)
-    os.rmdir(os.path.join(all_resources_dir, generation_id))
+    synthetic_generation(model, dataset, param_file, corresp_files, result_dir, app)
+    clean_create_dir(session_id, ALL_RESOURCES_DIR)
+    os.rmdir(os.path.join(ALL_RESOURCES_DIR, session_id))
     zip_files(result_dir, app.config['SYNTHETIC_DATA'])
 
     session['sample_ready'] = True
     return redirect(url_for('index'))
 
 
+@app.route('/evaluate', methods=['POST'])
+def evaluate():
+    evaluation_file_form = EvaluationParamFileForm()
+    evaluation_fields_form = EvaluationParamFieldsForm()
+
+    session_id = session['session_id']
+
+    resources_dir = clean_create_dir(session_id, ALL_RESOURCES_DIR)
+    result_dir = clean_create_dir(session_id, ALL_RESULTS_DIR)
+
+    if evaluation_file_form.validate_on_submit():
+        real_dataset = save_file(evaluation_file_form.evaluation_file_dataset.data, resources_dir)
+        param_file = save_file(evaluation_file_form.evaluation_file_param.data, resources_dir)
+        synthetic_dataset = save_file(evaluation_file_form.evaluation_file_synthetic.data, resources_dir)
+    else:
+        real_dataset = save_file(evaluation_fields_form.evaluation_fields_dataset.data, resources_dir)
+        names = evaluation_fields_form.evaluation_fields_names.data
+        correlees = evaluation_fields_form.evaluation_fields_correlees.data
+        categories = evaluation_fields_form.evaluation_fields_categories.data
+        drop = evaluation_fields_form.evaluation_fields_drop.data
+        unnamed = evaluation_fields_form.evaluation_fields_unnamed.data
+        compare = evaluation_fields_form.evaluation_fields_compare.data
+        param_file = create_evaluation_param_file(names, categories, correlees, drop, unnamed, compare, resources_dir)
+        synthetic_dataset = save_file(evaluation_fields_form.evaluation_fields_synthetic.data, resources_dir)
+
+    synthetic_evaluation(real_dataset, param_file, synthetic_dataset, result_dir, app)
+    clean_create_dir(session_id, ALL_RESOURCES_DIR)
+    os.rmdir(os.path.join(ALL_RESOURCES_DIR, session_id))
+
+    session['evaluation_ready'] = True
+    return redirect(url_for('index'))
+
+
 @app.route('/summary', methods=['GET', 'POST'])
 def summary():
-    if 'generation_id' in session:
-        generation_id = session['generation_id']
-        all_results_dir = os.path.join(app.instance_path, app.config['RESULTS'])
-        for dirname in os.listdir(all_results_dir):
-            if dirname == generation_id:
-                result_dir = os.path.join(all_results_dir, generation_id)
+    if 'session_id' in session:
+        session_id = session['session_id']
+        for dirname in os.listdir(ALL_RESULTS_DIR):
+            if dirname == session_id:
+                result_dir = os.path.join(ALL_RESULTS_DIR, session_id)
                 for filename in os.listdir(result_dir):
                     if filename == app.config['SYNTHETIC_DATA']:
-                        # TODO : faire une méthode dans utils pour ce qu'il y a ci-dessous
-                        pdf_merger = PyPDF2.PdfFileMerger()
-                        with zipfile.ZipFile(os.path.join(result_dir, filename)) as zipfolder:
-                            for summary_file in zipfolder.namelist():
-                                if re.match('.*summary\\.pdf', summary_file):
-                                    for file in result_dir:
-                                        if file == summary_file:
-                                            os.remove(file)
-                                            break
-                                    zipfolder.extract(summary_file, result_dir)
-                                    target_file = os.path.join(result_dir, summary_file)
-                                    pdf_merger.append(target_file)
-                                    os.remove(target_file)
-                        for file in os.listdir(result_dir):
-                            if file == app.config['SUMMARY_PDF']:
-                                os.remove(file)
-                                continue
-                        binary_file = os.path.join(result_dir, app.config['SUMMARY_PDF'])
-                        pdf_merger.write(binary_file)
-                        pdf_merger.close()
-                        with open(binary_file, 'rb') as b:
-                            pdf_bytes = b.read()
-                        os.remove(binary_file)
+                        pdf_bytes = get_bytes_from_all_pdf_in_zip(result_dir, filename, app.config['SUMMARY_PDF'])
                         preview_file = make_response(pdf_bytes)
                         preview_file.headers['Content-Type'] = 'application/pdf'
                         preview_file.headers['Content-Disposition'] = 'inline; filename=summary.pdf'
                         return preview_file
 
-        if generation_not_completed(generation_id):
+        if generation_not_completed(ALL_RESOURCES_DIR, session_id, session):
             return redirect(url_for('index'))
 
         session['id_invalid'] = True
@@ -153,17 +171,16 @@ def summary():
 
 @app.route('/result', methods=['POST'])
 def result():
-    if 'generation_id' in session:
-        generation_id = session['generation_id']
-        all_results_dir = os.path.join(app.instance_path, app.config['RESULTS'])
-        for dirname in os.listdir(all_results_dir):
-            if dirname == generation_id:
-                result_dir = os.path.join(all_results_dir, generation_id)
+    if 'session_id' in session:
+        session_id = session['session_id']
+        for dirname in os.listdir(ALL_RESULTS_DIR):
+            if dirname == session_id:
+                result_dir = os.path.join(ALL_RESULTS_DIR, session_id)
                 for filename in os.listdir(result_dir):
-                    if filename == app.config['SYNTHETIC_DATA']:
+                    if filename == app.config['SYNTHETIC_DATA'] or filename == app.config['SUMMARY_PDF']:
                         return send_from_directory(result_dir, filename, as_attachment=True)
 
-        if generation_not_completed(generation_id):
+        if generation_not_completed(ALL_RESOURCES_DIR, session_id, session):
             return redirect(url_for('index'))
 
         session['id_invalid'] = True
@@ -171,44 +188,3 @@ def result():
     else:
         session['id_missing'] = True
         return redirect(url_for('index'))
-
-
-def generation_not_completed(generation_id):
-    all_resources_dir = os.path.join(app.instance_path, app.config['RESOURCES'])
-    for dirname in os.listdir(all_resources_dir):
-        if dirname == generation_id:
-            session['generation_not_completed'] = True
-            return True
-    return False
-
-
-def flash_management():
-    if 'form_error' in session:
-        flash('There was an error in your form.\\nPlease make sure to fill in all fields correctly.', 'error')
-        session.pop('form_error', None)
-    if 'id_missing' in session:
-        flash('Generation ID is missing.\\nPlease generate a new sample to fix this issue.', 'error')
-        session.pop('id_missing', None)
-    if 'id_invalid' in session:
-        flash('Generation ID is invalid.\\nPlease generate a new sample to fix this issue.', 'error')
-        session.pop('id_invalid', None)
-    if 'generation_not_completed' in session:
-        flash('Your sample is not yet completed.\\nPlease come back later to preview or download it.', 'warning')
-        session.pop('generation_not_completed', None)
-    elif 'generation_id' in session:
-        in_progress = False
-        all_resources_dir = os.path.join(app.instance_path, app.config['RESOURCES'])
-        generation_id = session['generation_id']
-        for dirname in os.listdir(all_resources_dir):
-            if dirname == generation_id:
-                flash('Your sample is being generated.\\nIt might take some time, you can come back later.', 'info')
-                session.pop('generation_in_progress', None)
-                in_progress = True
-        if not in_progress:
-            all_results_dir = os.path.join(app.instance_path, app.config['RESULTS'])
-            for dirname in os.listdir(all_results_dir):
-                if dirname == generation_id:
-                    session['sample_ready'] = True
-    if 'sample_ready' in session:
-        flash('You result zip folder is available.\\nYou can download it or preview its summary below.', 'success')
-        session.pop('sample_ready', None)

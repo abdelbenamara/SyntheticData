@@ -1,33 +1,15 @@
 {% extends 'base.html' %}
 
-{% block application_page %}
-    <form class="hide" id="result-form" method="post" action="{{ url_for('result') }}">
-        {{ file_form.csrf_token(id="result_form_csrf_token") }}
-    </form>
-    <form class="hide" id="summary-form" method="post" action="{{ url_for('summary') }}" target="_blank">
-        {{ file_form.csrf_token(id="preview_form_csrf_token") }}
-    </form>
+{% block technologies_page %}
+    {% include 'technologies.html' %}
+{% endblock %}
 
-    {% include 'forms.html' %}
+{% block generation_page %}
+    {% include 'generation.html' %}
+{% endblock %}
 
-    <div class="submit-wrapper">
-        <div class="submit-container show" id="parameter-file-submit">
-            <button class="submit-button" type="submit" form="parameter-file-form">Generate dataset
-                <img class="side-icon" src="{{ url_for('static', filename='img/cogs.svg') }}" alt="">
-            </button>
-        </div>
-        <div class="submit-container hide" id="parameter-fields-submit">
-            <button class="submit-button" type="submit" form="parameter-fields-form">Generate dataset
-                <img class="side-icon" src="{{ url_for('static', filename='img/cogs.svg') }}" alt="">
-            </button>
-        </div>
-        <button class="submit-button" type="submit" form="summary-form">Summary preview
-            <img class="side-icon" src="{{ url_for('static', filename='img/magnifier.svg') }}" alt="">
-        </button>
-        <button class="submit-button" type="submit" form="result-form">Result zip folder
-            <img class="side-icon" src="{{ url_for('static', filename='img/download.svg') }}" alt="">
-        </button>
-    </div>
+{% block evaluation_page %}
+    {% include 'evaluation.html' %}
 {% endblock %}
 
 {% block notifications %}

@@ -137,4 +137,5 @@ dmypy.json
 
 # Development
 development/
+example/
 src/tests/

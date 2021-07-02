@@ -1,0 +1,27 @@
+<div class="definitions-container">
+    <div class="definition b-ctgan">
+        <h1><a href="https://sdv.dev/SDV/user_guides/single_table/ctgan.html" target="_blank">CTGAN</a></h1>
+        <div class="horizontal-line"></div>
+        <p>CTGAN is a GAN-based method to model tabular data distribution and sample rows from the distribution.
+            In CTGAN, the mode-specific normalization overcome the non-Gaussian and multimodal distribution. A
+            conditional generator and training-by-sampling were design to deal with the imbalanced discrete
+            columns. And fully-connected networks and several recent techniques to train a high-quality model
+            are used.</p>
+    </div>
+    <div class="definition b-tvae">
+        <h1><a href="https://sdv.dev/SDV/user_guides/single_table/tvae.html" target="_blank">TVAE</a></h1>
+        <div class="horizontal-line"></div>
+        <p>Variational autoencoder is another neural network generative model. VAE was adapted to tabular data
+            by using the same preprocessing and modifying the loss function. This model is called TVAE. In TVAE,
+            two neural networks are used to model coefficients, and they are trained using evidence lower-bound
+            (ELBO) loss.</p>
+    </div>
+    <div class="definition b-wgan">
+        <h1><a href="https://github.com/civisanalytics/dpwgan" target="_blank">WGAN</a></h1>
+        <div class="horizontal-line"></div>
+        <p>Wasserstein GAN, or WGAN, is a type of generative adversarial network that minimizes an approximation
+            of the Earth-Mover's distance (EM) rather than the Jensen-Shannon divergence as in the original GAN
+            formulation. It leads to more stable training than original GANs with less evidence of mode
+            collapse.</p>
+    </div>
+</div>

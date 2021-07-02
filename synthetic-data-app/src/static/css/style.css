@@ -65,6 +65,7 @@ body {
 
 .page {
   background-color: #E8F8F5;
+  border-radius: 8px;
   padding: 48px 4px; }
 
 #technologies-page {
@@ -81,6 +82,14 @@ body {
       color: #283747; }
       #technologies-page .definitions-container .definition h1 {
         font-size: 32px; }
+        #technologies-page .definitions-container .definition h1 a {
+          color: inherit;
+          text-decoration: none;
+          padding: 8px 16px; }
+          #technologies-page .definitions-container .definition h1 a:hover {
+            color: #E8F8F5;
+            background-color: #283747;
+            border-radius: 8px; }
       #technologies-page .definitions-container .definition p {
         font-size: 22px;
         text-align: center; }
@@ -103,26 +112,26 @@ body {
         #technologies-page .definitions-container .definition.b-wgan .horizontal-line {
           background-color: #2980B9; }
 
-#application-page {
+#generation-page, #evaluation-page {
   flex-direction: column;
   align-items: stretch; }
-  #application-page .choice-container {
+  #generation-page .choice-container, #evaluation-page .choice-container {
     align-self: stretch;
     display: grid;
     grid-template-columns: 1fr 2fr;
     padding: 0 10%; }
-    #application-page .choice-container .switch-container {
+    #generation-page .choice-container .switch-container, #evaluation-page .choice-container .switch-container {
       display: grid;
       grid-template-columns: 1fr 2fr;
       gap: 0 8px;
       justify-items: end;
       align-items: center; }
-      #application-page .choice-container .switch-container .form-switch {
+      #generation-page .choice-container .switch-container .form-switch, #evaluation-page .choice-container .switch-container .form-switch {
         position: relative;
         display: inline-block;
         width: 60px;
         height: 32px; }
-        #application-page .choice-container .switch-container .form-switch .slider-round {
+        #generation-page .choice-container .switch-container .form-switch .slider-round, #evaluation-page .choice-container .switch-container .form-switch .slider-round {
           position: absolute;
           cursor: pointer;
           top: 0;
@@ -132,7 +141,7 @@ body {
           background-color: #283747;
           border-radius: 32px;
           transition: .4s; }
-          #application-page .choice-container .switch-container .form-switch .slider-round:before {
+          #generation-page .choice-container .switch-container .form-switch .slider-round:before, #evaluation-page .choice-container .switch-container .form-switch .slider-round:before {
             position: absolute;
             content: "";
             height: 24px;
@@ -142,36 +151,36 @@ body {
             background-color: #1ABC9C;
             border-radius: 50%;
             transition: .4s; }
-        #application-page .choice-container .switch-container .form-switch #form-switch:checked + .slider-round {
+        #generation-page .choice-container .switch-container .form-switch .form-switch-input:checked + .slider-round, #evaluation-page .choice-container .switch-container .form-switch .form-switch-input:checked + .slider-round {
           background-color: #1ABC9C; }
-          #application-page .choice-container .switch-container .form-switch #form-switch:checked + .slider-round:before {
+          #generation-page .choice-container .switch-container .form-switch .form-switch-input:checked + .slider-round:before, #evaluation-page .choice-container .switch-container .form-switch .form-switch-input:checked + .slider-round:before {
             background-color: #283747;
             transform: translateX(27px); }
-      #application-page .choice-container .switch-container .slider-text {
+      #generation-page .choice-container .switch-container .slider-text, #evaluation-page .choice-container .switch-container .slider-text {
         justify-self: start;
         color: #283747;
         font-size: 22px; }
-    #application-page .choice-container .models-container {
+    #generation-page .choice-container .models-container, #evaluation-page .choice-container .models-container {
       justify-content: space-evenly;
       height: 40px; }
-  #application-page .form-container {
+  #generation-page .form-container, #evaluation-page .form-container {
     flex: 1;
     flex-direction: column;
     justify-content: center;
     align-items: stretch;
     padding: 0 10%; }
-    #application-page .form-container .form {
+    #generation-page .form-container .form, #evaluation-page .form-container .form {
       flex: 1;
       display: flex;
       flex-direction: column;
       justify-content: space-evenly; }
-      #application-page .form-container .form .file-upload-wrapper {
+      #generation-page .form-container .form .file-upload-wrapper, #evaluation-page .form-container .form .file-upload-wrapper {
         position: relative;
         border-radius: 8px;
         width: 100%;
         height: 40px;
         background-color: #283747; }
-        #application-page .form-container .form .file-upload-wrapper:after {
+        #generation-page .form-container .form .file-upload-wrapper:after, #evaluation-page .form-container .form .file-upload-wrapper:after {
           content: attr(data-text);
           font-size: large;
           position: absolute;
@@ -187,7 +196,7 @@ body {
           color: #EBF5FB;
           text-align: left;
           border-radius: 8px 0 0 8px; }
-        #application-page .form-container .form .file-upload-wrapper:before {
+        #generation-page .form-container .form .file-upload-wrapper:before, #evaluation-page .form-container .form .file-upload-wrapper:before {
           content: url("/static/img/upload.svg");
           position: absolute;
           height: 40px;
@@ -202,7 +211,7 @@ body {
           font-size: 4px;
           display: flex;
           align-items: center; }
-        #application-page .form-container .form .file-upload-wrapper input {
+        #generation-page .form-container .form .file-upload-wrapper input, #evaluation-page .form-container .form .file-upload-wrapper input {
           opacity: 0;
           top: 0;
           right: 0;
@@ -215,17 +224,17 @@ body {
           display: block;
           cursor: pointer;
           width: 100%; }
-      #application-page .form-container .form .fields-container {
+      #generation-page .form-container .form .fields-container, #evaluation-page .form-container .form .fields-container {
         display: grid;
         grid: repeat(4, 1fr)/repeat(3, 1fr 2fr);
         gap: 40px 1%;
         align-items: center;
         color: #283747;
         margin-right: 5%; }
-        #application-page .form-container .form .fields-container > label {
+        #generation-page .form-container .form .fields-container > label, #evaluation-page .form-container .form .fields-container > label {
           font-size: 20px;
           text-align: right; }
-        #application-page .form-container .form .fields-container input {
+        #generation-page .form-container .form .fields-container input, #evaluation-page .form-container .form .fields-container input {
           height: 40px;
           font-size: 20px;
           width: 100%;
@@ -234,15 +243,17 @@ body {
           border-radius: 8px;
           color: #EBF5FB;
           background-color: #283747; }
-        #application-page .form-container .form .fields-container .all-columns {
+        #generation-page .form-container .form .fields-container .all-columns, #evaluation-page .form-container .form .fields-container .all-columns {
           grid-column-end: span 5; }
-        #application-page .form-container .form .fields-container .field-radio {
+        #generation-page .form-container .form .fields-container .half-columns, #evaluation-page .form-container .form .fields-container .half-columns {
+          grid-column-end: span 2; }
+        #generation-page .form-container .form .fields-container .field-radio, #evaluation-page .form-container .form .fields-container .field-radio {
           display: flex;
           justify-content: space-between; }
-  #application-page .submit-wrapper {
+  #generation-page .submit-wrapper, #evaluation-page .submit-wrapper {
     display: flex;
     justify-content: space-evenly; }
-    #application-page .submit-wrapper .submit-button {
+    #generation-page .submit-wrapper .submit-button, #evaluation-page .submit-wrapper .submit-button {
       border: 0;
       border-radius: 8px;
       color: #283747;
@@ -254,15 +265,15 @@ body {
       display: flex;
       justify-content: center;
       align-items: center; }
-      #application-page .submit-wrapper .submit-button:hover {
+      #generation-page .submit-wrapper .submit-button:hover, #evaluation-page .submit-wrapper .submit-button:hover {
         box-shadow: 2px 4px 8px rgba(40, 55, 71, 0.5); }
-    #application-page .submit-wrapper .submit-container {
+    #generation-page .submit-wrapper .submit-container, #evaluation-page .submit-wrapper .submit-container {
       width: 20%; }
-      #application-page .submit-wrapper .submit-container button {
+      #generation-page .submit-wrapper .submit-container button, #evaluation-page .submit-wrapper .submit-container button {
         width: 100%; }
-  #application-page .radio {
+  #generation-page .radio, #evaluation-page .radio {
     display: none; }
-    #application-page .radio + label {
+    #generation-page .radio + label, #evaluation-page .radio + label {
       display: flex;
       justify-content: center;
       align-items: center;
@@ -272,20 +283,15 @@ body {
       background-color: #283747;
       border-radius: 8px;
       cursor: pointer; }
-    #application-page .radio.model + label {
+    #generation-page .radio.model + label, #evaluation-page .radio.model + label {
       width: 15%;
       padding-top: 2px;
       font-weight: bold; }
-    #application-page .radio.unnamed + label {
+    #generation-page .radio.unnamed + label, #evaluation-page .radio.unnamed + label {
       width: 45%; }
-    #application-page .radio:checked + label {
+    #generation-page .radio:checked + label, #evaluation-page .radio:checked + label {
       color: #283747;
       background-color: #1ABC9C; }
-
-#documentation-page {
-  justify-content: center;
-  align-items: center;
-  color: #283747; }
 
 .side-icon {
   height: 20px;

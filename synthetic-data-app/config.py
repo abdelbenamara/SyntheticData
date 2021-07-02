@@ -2,6 +2,9 @@
 # >>> import random, string
 # >>> "".join([random.choice(string.printable) for _ in range(24)])
 import os
+import warnings
+
+from sklearn.exceptions import ConvergenceWarning
 
 if os.environ.get('SECRET_KEY') is None:
     SECRET_KEY = 'AI\x0bn&#Tg|LS\x0bpJq)0J*5\x0bu!P'
@@ -20,3 +23,9 @@ RESULTS = 'results'
 SYNTHETIC_DATA = 'synthetic_data.zip'
 
 SUMMARY_PDF = 'summary.pdf'
+
+warnings.simplefilter("ignore", category=DeprecationWarning)
+warnings.simplefilter("ignore", category=FutureWarning)
+warnings.simplefilter("ignore", category=ConvergenceWarning)
+warnings.simplefilter("ignore", category=UserWarning)
+warnings.simplefilter("ignore", category=RuntimeWarning)

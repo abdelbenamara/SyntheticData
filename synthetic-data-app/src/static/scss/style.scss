@@ -9,8 +9,8 @@ $header-size: 24px;
 $footer-size: 14px;
 $h-line-radius: 2px;
 $main-container-rows: 7% 6% 1fr 3%;
-$selector-container-columns: 25% 1fr 25%;
 $global-space-and-radius: 8px;
+$selector-container-columns: 25% 1fr 25%;
 $selector-size: 20px;
 $selector-radius: 12px 12px 0 0;
 $selector-color: rgba($theme-color-2, 0.5);
@@ -20,6 +20,8 @@ $definition-title-size: 32px;
 $definition-text-size: 22px;
 $slider-text-size: 22px;
 $form-item-height: 40px;
+$subject-container-rows: 10% 1fr;
+$subject-container-columns: repeat(3, 1fr);
 $msgbox-area-width: 480px;
 $msgbox-box-color: #FDFEFE;
 $msgbox-box-background-color: #2471A3;
@@ -125,6 +127,7 @@ body {
 
 .page {
   background-color: $theme-color-2;
+  border-radius: $global-space-and-radius;
   padding: $page-padding;
 }
 
@@ -145,6 +148,18 @@ body {
 
       h1 {
         font-size: $definition-title-size;
+
+        a {
+          color: inherit;
+          text-decoration: none;
+          padding: $global-space-and-radius $global-space-and-radius * 2;
+
+          &:hover {
+            color: $theme-color-2;
+            background-color: $theme-color-1;
+            border-radius: $global-space-and-radius;
+          }
+        }
       }
 
       p {
@@ -187,7 +202,7 @@ body {
   }
 }
 
-#application-page {
+#generation-page, #evaluation-page {
   flex-direction: column;
   align-items: stretch;
 
@@ -234,7 +249,7 @@ body {
           }
         }
 
-        #form-switch:checked + .slider-round {
+        .form-switch-input:checked + .slider-round {
           background-color: $theme-color-3;
 
           &:before {
@@ -356,6 +371,10 @@ body {
           grid-column-end: span 5;
         }
 
+        .half-columns {
+          grid-column-end: span 2;
+        }
+
         .field-radio {
           display: flex;
           justify-content: space-between;
@@ -425,12 +444,6 @@ body {
       background-color: $theme-color-3;
     }
   }
-}
-
-#documentation-page {
-  justify-content: center;
-  align-items: center;
-  color: $theme-color-1;
 }
 
 .side-icon {

@@ -1,0 +1,51 @@
+{% from '_formhelpers.html' import render_writting_field, render_radio_field %}
+
+<div class="choice-container">
+    <div class="switch-container">
+        <label class="form-switch">
+            <input class="form-switch-input hide" type="checkbox">
+            <span class="slider-round"></span>
+        </label>
+        <span class="slider-text">Parameter file</span>
+    </div>
+    <div class="models-container">
+    </div>
+</div>
+<div class="parameter-file form-container show">
+    <form class="form evaluation-form" id="evaluation-parameter-file-form" method="post" action="{{ url_for('prepare') }}"
+          enctype="multipart/form-data">
+        {{ evaluation_file_form.csrf_token(id="evaluation_file_form_csrf_token") }}
+        <div class="file-upload-wrapper" initial-text="Real dataset ( .csv )" data-text="">
+            {{ evaluation_file_form.evaluation_file_dataset(class_="file-upload-field") }}
+        </div>
+        <div class="file-upload-wrapper" initial-text="Parameters file ( .txt )" data-text="">
+            {{ evaluation_file_form.evaluation_file_param(class_="file-upload-field") }}
+        </div>
+        <div class="file-upload-wrapper" initial-text="Synthetic dataset ( .csv )" data-text="">
+            {{ evaluation_file_form.evaluation_file_synthetic(class_="file-upload-field") }}
+        </div>
+    </form>
+</div>
+<div class="parameter-fields form-container hide">
+    <form class="form evaluation-form" id="evaluation-parameter-fields-form" method="post" action="{{ url_for('prepare') }}"
+          enctype="multipart/form-data">
+        {{ evaluation_fields_form.csrf_token(id="evaluation_fields_form_csrf_token") }}
+        <div class="file-upload-wrapper" initial-text="Real dataset ( .csv )" data-text="">
+            {{ evaluation_fields_form.evaluation_fields_dataset(class_="file-upload-field") }}
+        </div>
+        <div class="fields-container">
+            {{ render_writting_field(evaluation_fields_form.evaluation_fields_names, class="half-columns") }}
+            {{ render_writting_field(evaluation_fields_form.evaluation_fields_correlees, class="half-columns") }}
+            {{ render_writting_field(evaluation_fields_form.evaluation_fields_categories, class="all-columns") }}
+            {{ render_writting_field(evaluation_fields_form.evaluation_fields_drop, class="half-columns") }}
+            {{ evaluation_fields_form.evaluation_fields_unnamed.label }}
+            <div class="field-radio half-columns">
+                {{ render_radio_field(evaluation_fields_form.evaluation_fields_unnamed, class="radio unnamed") }}
+            </div>
+            {{ render_writting_field(evaluation_fields_form.evaluation_fields_compare, class="all-columns") }}
+        </div>
+        <div class="file-upload-wrapper" initial-text="Synthetic dataset ( .csv )" data-text="">
+            {{ evaluation_fields_form.evaluation_fields_synthetic(class_="file-upload-field") }}
+        </div>
+    </form>
+</div>

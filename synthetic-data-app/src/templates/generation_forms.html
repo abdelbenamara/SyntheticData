@@ -1,0 +1,57 @@
+{% from '_formhelpers.html' import render_writting_field, render_radio_field %}
+
+<div class="choice-container">
+    <div class="switch-container">
+        <label class="form-switch">
+            <input class="form-switch-input hide" type="checkbox">
+            <span class="slider-round"></span>
+        </label>
+        <span class="slider-text">Parameter file</span>
+    </div>
+    <div class="parameter-file-models models-container show">
+        {{ render_radio_field(generation_file_form.generation_file_model, class="radio model", form="generation-parameter-file-form") }}
+    </div>
+    <div class="parameter-fields-models models-container hide">
+        {{ render_radio_field(generation_fields_form.generation_fields_model, class="radio model", form="generation-parameter-fields-form") }}
+    </div>
+</div>
+<div class="parameter-file form-container show">
+    <form class="form generation-form" id="generation-parameter-file-form" method="post" action="{{ url_for('prepare') }}"
+          enctype="multipart/form-data">
+        {{ generation_file_form.csrf_token(id="generation_file_form_csrf_token") }}
+        <div class="file-upload-wrapper" initial-text="Real dataset ( .csv )" data-text="">
+            {{ generation_file_form.generation_file_dataset(class_="file-upload-field") }}
+        </div>
+        <div class="file-upload-wrapper" initial-text="Parameters file ( .txt )" data-text="">
+            {{ generation_file_form.generation_file_param(class_="file-upload-field") }}
+        </div>
+        <div class="file-upload-wrapper" initial-text="Correspondence files ( .txt )" data-text="">
+            {{ generation_file_form.generation_file_corresp(class_="file-upload-field") }}
+        </div>
+    </form>
+</div>
+<div class="parameter-fields form-container hide">
+    <form class="form generation-form" id="generation-parameter-fields-form" method="post" action="{{ url_for('prepare') }}"
+          enctype="multipart/form-data">
+        {{ generation_fields_form.csrf_token(id="generation_fields_form_csrf_token") }}
+        <div class="file-upload-wrapper" initial-text="Real dataset ( .csv )" data-text="">
+            {{ generation_fields_form.generation_fields_dataset(class_="file-upload-field") }}
+        </div>
+        <div class="fields-container">
+            {{ render_writting_field(generation_fields_form.generation_fields_samples) }}
+            {{ render_writting_field(generation_fields_form.generation_fields_epochs) }}
+            {{ render_writting_field(generation_fields_form.generation_fields_names) }}
+            {{ render_writting_field(generation_fields_form.generation_fields_categories, class="all-columns") }}
+            {{ render_writting_field(generation_fields_form.generation_fields_correlees) }}
+            {{ render_writting_field(generation_fields_form.generation_fields_drop) }}
+            {{ generation_fields_form.generation_fields_unnamed.label }}
+            <div class="field-radio">
+                {{ render_radio_field(generation_fields_form.generation_fields_unnamed, class="radio unnamed") }}
+            </div>
+            {{ render_writting_field(generation_fields_form.generation_fields_compare, class="all-columns") }}
+        </div>
+        <div class="file-upload-wrapper" initial-text="Correspondence files ( .txt )" data-text="">
+            {{ generation_fields_form.generation_fields_corresp(class_="file-upload-field") }}
+        </div>
+    </form>
+</div>

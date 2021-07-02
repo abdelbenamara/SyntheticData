@@ -1,0 +1,27 @@
+<form class="hide" id="evaluation-result-form" method="post" action="{{ url_for('result') }}">
+    {{ evaluation_file_form.csrf_token(id="evaluation_result_form_csrf_token") }}
+</form>
+<form class="hide" id="evaluation-summary-form" method="post" action="{{ url_for('summary') }}" target="_blank">
+    {{ evaluation_file_form.csrf_token(id="evaluation_preview_form_csrf_token") }}
+</form>
+
+{% include 'evaluation_forms.html' %}
+
+<div class="submit-wrapper">
+    <div class="submit-container show" id="parameter-file-submit">
+        <button class="submit-button" type="submit" form="evaluation-parameter-file-form">Evaluate dataset
+            <img class="side-icon" src="{{ url_for('static', filename='img/cogs.svg') }}" alt="">
+        </button>
+    </div>
+    <div class="submit-container hide" id="parameter-fields-submit">
+        <button class="submit-button" type="submit" form="evaluation-parameter-fields-form">Evaluate dataset
+            <img class="side-icon" src="{{ url_for('static', filename='img/cogs.svg') }}" alt="">
+        </button>
+    </div>
+    <button class="submit-button" type="submit" form="evaluation-summary-form">Preview summary
+        <img class="side-icon" src="{{ url_for('static', filename='img/magnifier.svg') }}" alt="">
+    </button>
+    <button class="submit-button" type="submit" form="evaluation-result-form">Download result
+        <img class="side-icon" src="{{ url_for('static', filename='img/download.svg') }}" alt="">
+    </button>
+</div>

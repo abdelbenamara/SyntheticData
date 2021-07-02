@@ -1,0 +1,27 @@
+<form class="hide" id="generation-result-form" method="post" action="{{ url_for('result') }}">
+    {{ generation_file_form.csrf_token(id="generation_result_form_csrf_token") }}
+</form>
+<form class="hide" id="generation-summary-form" method="post" action="{{ url_for('summary') }}" target="_blank">
+    {{ generation_file_form.csrf_token(id="generation_preview_form_csrf_token") }}
+</form>
+
+{% include 'generation_forms.html' %}
+
+<div class="submit-wrapper">
+    <div class="parameter-file-submit submit-container show">
+        <button class="submit-button" type="submit" form="generation-parameter-file-form">Generate dataset
+            <img class="side-icon" src="{{ url_for('static', filename='img/cogs.svg') }}" alt="">
+        </button>
+    </div>
+    <div class="parameter-fields-submit submit-container hide">
+        <button class="submit-button" type="submit" form="generation-parameter-fields-form">Generate dataset
+            <img class="side-icon" src="{{ url_for('static', filename='img/cogs.svg') }}" alt="">
+        </button>
+    </div>
+    <button class="submit-button" type="submit" form="generation-summary-form">Preview summary
+        <img class="side-icon" src="{{ url_for('static', filename='img/magnifier.svg') }}" alt="">
+    </button>
+    <button class="submit-button" type="submit" form="generation-result-form">Download result
+        <img class="side-icon" src="{{ url_for('static', filename='img/download.svg') }}" alt="">
+    </button>
+</div>

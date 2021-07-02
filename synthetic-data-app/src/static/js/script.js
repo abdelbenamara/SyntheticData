@@ -37,7 +37,7 @@ class MessageBox {
         msgboxBox.classList.add("msgbox-box");
         if (type === 'error') {
             msgboxBox.classList.add("error-box");
-        } else if (type==='warning') {
+        } else if (type === 'warning') {
             msgboxBox.classList.add("warning-box");
         } else if (type === 'success') {
             msgboxBox.classList.add("success-box");
@@ -109,26 +109,57 @@ changeTab = function () {
 };
 
 changeForm = function () {
-    document.querySelectorAll('.form-container').forEach((elem) => {
-        elem.className = 'form-container hide';
+    document.querySelectorAll('.parameter-fields').forEach((elem) => {
+        elem.className = 'parameter-fields form-container hide';
     });
-    document.querySelectorAll('.models-container').forEach((elem) => {
-        elem.className = 'models-container hide';
+    document.querySelectorAll('.parameter-fields-models').forEach((elem) => {
+        elem.className = 'parameter-fields-models models-container hide';
     });
-    document.querySelectorAll('.submit-container').forEach((elem) => {
-        elem.className = 'submit-container hide';
+    document.querySelectorAll('.parameter-fields-submit').forEach((elem) => {
+        elem.className = 'parameter-fields-submit submit-container hide';
+    });
+    document.querySelectorAll('.parameter-file').forEach((elem) => {
+        elem.className = 'parameter-file form-container hide';
+    });
+    document.querySelectorAll('.parameter-file-models').forEach((elem) => {
+        elem.className = 'parameter-file-models models-container hide';
+    });
+    document.querySelectorAll('.parameter-file-submit').forEach((elem) => {
+        elem.className = 'parameter-file-submit submit-container hide';
     });
     // noinspection JSUnresolvedVariable
     if (this.checked) {
-        document.querySelector('.slider-text').innerHTML = 'Parameter fields';
-        document.getElementById('parameter-fields').className = 'form-container show';
-        document.getElementById('parameter-fields-models').className = 'models-container show';
-        document.getElementById('parameter-fields-submit').className = 'submit-container show';
+        document.querySelectorAll('.form-switch-input').forEach((elem) => {
+            elem.checked = true;
+        });
+        document.querySelectorAll('.slider-text').forEach((elem) => {
+            elem.innerHTML = 'Parameter fields';
+        });
+        document.querySelectorAll('.parameter-fields').forEach((elem) => {
+            elem.className = 'parameter-fields form-container show';
+        });
+        document.querySelectorAll('.parameter-fields-models').forEach((elem) => {
+            elem.className = 'parameter-fields-models models-container show';
+        });
+        document.querySelectorAll('.parameter-fields-submit').forEach((elem) => {
+            elem.className = 'parameter-fields-submit submit-container show';
+        });
     } else {
-        document.querySelector('.slider-text').innerHTML = 'Parameter file';
-        document.getElementById('parameter-file').className = 'form-container show';
-        document.getElementById('parameter-file-models').className = 'models-container show';
-        document.getElementById('parameter-file-submit').className = 'submit-container show';
+        document.querySelectorAll('.form-switch-input').forEach((elem) => {
+            elem.checked = false;
+        });
+        document.querySelectorAll('.slider-text').forEach((elem) => {
+            elem.innerHTML = 'Parameter file';
+        });
+        document.querySelectorAll('.parameter-file').forEach((elem) => {
+            elem.className = 'parameter-file form-container show';
+        });
+        document.querySelectorAll('.parameter-file-models').forEach((elem) => {
+            elem.className = 'parameter-file-models models-container show';
+        });
+        document.querySelectorAll('.parameter-file-submit').forEach((elem) => {
+            elem.className = 'parameter-file-submit submit-container show';
+        });
     }
 };
 
@@ -154,10 +185,17 @@ let msgboxTemporary = new MessageBox("#msgbox-area", {
     hideCloseButton: false
 });
 
-let ganFormAlert = function () {
+let generationFormAlert = function () {
     msgboxTemporary.show("Your sample is being generated.\nSynthetic data generation might take some time.");
     setTimeout(() => {
-        msgboxPersistent.show("Generation ID was successfully created.\nYou can come back later to download your sample.", 'success')
+        msgboxPersistent.show("Session ID was successfully created.\nYou can come back later to download your sample.", 'success')
+    }, 3 * 1000)
+};
+
+let evaluationFormAlert = function () {
+    msgboxTemporary.show("Your graphs are being generated.\nSynthetic data evaluation should not take long.");
+    setTimeout(() => {
+        msgboxPersistent.show("Session ID was successfully created.\nYou can come back later to download your graphs.", 'success')
     }, 3 * 1000)
 };
 
@@ -165,15 +203,20 @@ let init = function () {
     document.querySelectorAll('.selector').forEach((elem) => {
         elem.addEventListener('click', changeTab, false);
     });
-    document.getElementById('form-switch').addEventListener('click', changeForm, false);
+    document.querySelectorAll('.form-switch-input').forEach((elem) => {
+        elem.addEventListener('click', changeForm, false);
+    });
     document.querySelectorAll('.file-upload-field').forEach((elem) => {
         elem.addEventListener('change', displayFileName, false);
     });
     document.querySelectorAll('.file-upload-wrapper').forEach((elem) => {
         elem.setAttribute('data-text', elem.getAttribute('initial-text'));
     });
-    document.querySelectorAll('.form').forEach((elem) => {
-        elem.addEventListener('submit', ganFormAlert, false);
+    document.querySelectorAll('.generation-form').forEach((elem) => {
+        elem.addEventListener('submit', generationFormAlert, false);
+    });
+    document.querySelectorAll('.evaluation-form').forEach((elem) => {
+        elem.addEventListener('submit', evaluationFormAlert, false);
     });
 };
 
