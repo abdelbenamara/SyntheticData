@@ -323,7 +323,8 @@ body {
           pointer-events: none;
           border-radius: 0 $global-space-and-radius $global-space-and-radius 0;
           font-size: 4px;
-          display: flex;
+          text-align: center;
+          display: grid;
           align-items: center;
         }
 
