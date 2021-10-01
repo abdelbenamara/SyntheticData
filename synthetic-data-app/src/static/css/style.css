@@ -209,7 +209,6 @@ body {
           pointer-events: none;
           border-radius: 0 8px 8px 0;
           font-size: 4px;
-          text-align: center;
           display: grid;
           align-items: center; }
         #generation-page .form-container .form .file-upload-wrapper input, #evaluation-page .form-container .form .file-upload-wrapper input {
